@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTrack | Start Your Journey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="welcome-body">
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <main class="welcome-shell">
+        <section class="brand-panel">
+            <div class="brand-mark">FT</div>
+            <div>
+                <p class="eyebrow">FITTRACK</p>
+                <h1>Build healthier habits, one day at a time.</h1>
+                <p class="hero-copy">Track hydration, movement, calories, BMI and weight from one simple personal dashboard.</p>
+            </div>
+            <div class="mini-stats">
+                <div><strong>8</strong><span>glasses / day</span></div>
+                <div><strong>10k</strong><span>step target</span></div>
+                <div><strong>1%</strong><span>better daily</span></div>
+            </div>
+        </section>
+
+        <section class="setup-card glass-card">
+            <div class="setup-heading">
+                <span class="pulse-dot"></span>
+                <p>Personal setup</p>
+            </div>
+            <h2>Tell us about yourself</h2>
+            <p class="muted">We use this information to create your fitness dashboard and calculate BMI.</p>
+
+            {% if error %}
+            <div class="error-box">{{ error }}</div>
+            {% endif %}
+
+            <form action="{{ url_for('setup') }}" method="post" class="setup-form">
+                <label>
+                    <span>Your name</span>
+                    <input type="text" name="name" placeholder="e.g. Alex" required autocomplete="name">
+                </label>
+
+                <div class="form-grid">
+                    <label>
+                        <span>Age</span>
+                        <div class="input-unit"><input type="number" name="age" min="10" max="120" placeholder="25" required><b>yrs</b></div>
+                    </label>
+                    <label>
+                        <span>Height</span>
+                        <div class="input-unit"><input type="number" name="height" min="80" max="250" step="0.1" placeholder="175" required><b>cm</b></div>
+                    </label>
+                </div>
+
+                <label>
+                    <span>Current weight</span>
+                    <div class="input-unit"><input type="number" name="weight" min="20" max="400" step="0.1" placeholder="72.5" required><b>kg</b></div>
+                </label>
+
+                <button class="primary-btn" type="submit">Create my dashboard <span>→</span></button>
+            </form>
+            <p class="privacy-note">Your data is stored locally in the included SQLite database.</p>
+        </section>
+    </main>
+</body>
+</html>

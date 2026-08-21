@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTrack | Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="dashboard-body">
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <div class="app-shell">
+        <aside class="sidebar glass-card">
+            <div class="logo-row">
+                <div class="brand-mark small">FT</div>
+                <div><strong>FitTrack</strong><span>Daily Fitness</span></div>
+            </div>
+
+            <nav>
+                <a class="nav-item active" href="#overview"><span>◫</span> Overview</a>
+                <a class="nav-item" href="#hydration"><span>◉</span> Hydration</a>
+                <a class="nav-item" href="#activity"><span>⌁</span> Activity</a>
+                <a class="nav-item" href="#weight"><span>↗</span> Weight</a>
+            </nav>
+
+            <div class="profile-mini">
+                <div class="avatar">{{ user['name'][0]|upper }}</div>
+                <div><strong>{{ user['name'] }}</strong><span>{{ user['age'] }} years old</span></div>
+            </div>
+            <form action="{{ url_for('reset_profile') }}" method="post">
+                <button class="text-btn" type="submit">Start with another profile</button>
+            </form>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar" id="overview">
+                <div>
+                    <p class="eyebrow">TODAY'S OVERVIEW</p>
+                    <h1>Welcome back, {{ user['name'] }}.</h1>
+                    <p class="muted">Keep your momentum going. Every healthy choice counts.</p>
+                </div>
+                <div class="date-pill" id="todayDate"></div>
+            </header>
+
+            <section class="quote-card glass-card">
+                <div class="quote-icon">“</div>
+                <div>
+                    <p class="eyebrow">DAILY MOTIVATION</p>
+                    <blockquote id="quoteText">{{ quote }}</blockquote>
+                </div>
+                <button id="newQuoteBtn" class="icon-btn" title="New quote">↻</button>
+            </section>
+
+            <section class="stats-grid">
+                <article class="stat-card glass-card">
+                    <div class="stat-icon">⚖</div>
+                    <p>Weight</p>
+                    <h3><span id="weightValue">{{ '%.1f'|format(user['weight']) }}</span> <small>kg</small></h3>
+                    <span class="status-chip">Current</span>
+                </article>
+                <article class="stat-card glass-card">
+                    <div class="stat-icon">◎</div>
+                    <p>BMI</p>
+                    <h3><span id="bmiValue">{{ bmi }}</span></h3>
+                    <span class="status-chip" id="bmiLabel">{{ bmi_label }}</span>
+                </article>
+                <article class="stat-card glass-card">
+                    <div class="stat-icon">⌁</div>
+                    <p>Steps</p>
+                    <h3><span id="stepsStat">{{ daily['steps'] }}</span></h3>
+                    <div class="tiny-progress"><i id="stepsProgress" style="width: {{ [daily['steps'] / 100, 100]|min }}%"></i></div>
+                    <span class="subtle">Goal 10,000</span>
+                </article>
+                <article class="stat-card glass-card">
+                    <div class="stat-icon">⚡</div>
+                    <p>Active time</p>
+                    <h3><span id="minutesStat">{{ daily['active_minutes'] }}</span> <small>min</small></h3>
+                    <span class="subtle">Move your body today</span>
+                </article>
+            </section>
+
+            <section class="dashboard-grid">
+                <article class="water-card glass-card" id="hydration">
+                    <div class="card-head">
+                        <div>
+                            <p class="eyebrow">HYDRATION</p>
+                            <h2>Daily water</h2>
+                        </div>
+                        <div class="water-count"><strong id="waterCount">{{ daily['water'] }}</strong><span>/8 glasses</span></div>
+                    </div>
+
+                    <div class="water-visual">
+                        <div class="bottle">
+                            <div class="bottle-fill" id="bottleFill" style="height: {{ (daily['water'] / 8 * 100)|round }}%"></div>
+                            <div class="bottle-label"><span id="waterPercent">{{ (daily['water'] / 8 * 100)|round|int }}</span>%</div>
+                        </div>
+                        <div class="glass-grid" id="glassGrid">
+                            {% for i in range(1, 9) %}
+                            <button class="glass-btn {% if i <= daily['water'] %}filled{% endif %}" data-index="{{ i }}" title="Glass {{ i }}">
+                                <span>▰</span><small>{{ i }}</small>
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="water-actions">
+                        <button class="secondary-btn" id="removeWater">− Remove</button>
+                        <button class="primary-btn compact" id="addWater">+ I drank a glass</button>
+                    </div>
+                    <p class="goal-message" id="waterMessage">
+                        {% if daily['water'] >= 8 %}Hydration goal complete! Great work. 💧{% else %}{{ 8 - daily['water'] }} glass{% if 8 - daily['water'] != 1 %}es{% endif %} left to reach today's goal.{% endif %}
+                    </p>
+                </article>
+
+                <article class="activity-card glass-card" id="activity">
+                    <div class="card-head">
+                        <div>
+                            <p class="eyebrow">ACTIVITY</p>
+                            <h2>Log today</h2>
+                        </div>
+                        <span class="live-badge">● LIVE</span>
+                    </div>
+                    <div class="activity-form">
+                        <label><span>Steps</span><input id="stepsInput" type="number" min="0" value="{{ daily['steps'] }}"></label>
+                        <label><span>Active minutes</span><input id="minutesInput" type="number" min="0" value="{{ daily['active_minutes'] }}"></label>
+                        <label><span>Calories burned</span><input id="caloriesInput" type="number" min="0" value="{{ daily['calories'] }}"></label>
+                        <button id="saveActivity" class="primary-btn">Save today's activity</button>
+                    </div>
+                    <div class="activity-summary">
+                        <div><span>🔥</span><strong id="caloriesStat">{{ daily['calories'] }}</strong><small>kcal burned</small></div>
+                        <div><span>🎯</span><strong>{{ [daily['steps'] / 100, 100]|min|round|int }}%</strong><small>step goal</small></div>
+                    </div>
+                </article>
+            </section>
+
+            <section class="weight-section glass-card" id="weight">
+                <div class="card-head">
+                    <div>
+                        <p class="eyebrow">PROGRESS</p>
+                        <h2>Weight tracker</h2>
+                    </div>
+                    <div class="weight-update">
+                        <input id="weightInput" type="number" min="20" max="400" step="0.1" value="{{ user['weight'] }}">
+                        <button id="saveWeight" class="secondary-btn">Update weight</button>
+                    </div>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="weightChart" width="900" height="260"></canvas>
+                    <div class="empty-chart" id="emptyChart">Add weight updates to build your progress chart.</div>
+                </div>
+            </section>
+
+            <footer>FitTrack • Built with HTML, CSS, JavaScript, Python Flask & SQLite</footer>
+        </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        window.FITTRACK = {
+            water: {{ daily['water'] }},
+            history: [
+                {% for item in weight_history %}
+                { weight: {{ item['weight'] }}, date: "{{ item['logged_at'][:10] }}" }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]
+        };
+    </script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
