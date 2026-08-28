@@ -68,7 +68,11 @@ jobs:
             sudo docker stop fittrack || true
 
             echo "Removing old container..."
-            sudo docker rm fittrack || true
+            sudo docker rm -f fittrack || true
+
+            echo "Removing old images..."
+            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/fittrack:latest || true
+
 
             echo "Starting new container..."
             sudo docker run -d \
